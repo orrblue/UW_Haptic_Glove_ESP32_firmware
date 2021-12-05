@@ -4,60 +4,74 @@
  * Prototype version. Author: Aymeric Wang
  */
 
-#ifndef RECIEVER_H
-#define RECIEVER_H
-
 #include <Arduino.h>
 #include <Wire.h>
 #include <string.h>
 
-/* * * * * * * * * * * * * * * * * * *
-* @setup 
-* void setup() {
-*   Serial.begin(115200);
-*   Serial2.begin(115200, SERIAL_8N1,RXp2,TXp2);
-* }
-* 
-* @loop
-* void loop() {
-*   Serial.println("Message recieved: ");
-*   while (Serial2.available()>0){
-*       char string = Serial2.read();
-*       Serial.print(string);
-*   }
-*   delay(200);
-* }
-* * * * * * * * * * * * * * * * * * * */
-
-int iter = 0;
 
 int force_message_reciever(){
-    char force[10];
+    //Serial.println("Listening to force messages...");
+    char force_message[10];
     char character;
-    char alpha;
+    char msg_delimiter_init[] = "<";
+    char msg_delimiter_end[] = ">";
     int i = 0;
-    int sPos5 = 0;
-    while (Serial2.available()>0){
-        character = Serial2.read();
-        int result;
-        //Serial.print(string);
+    int robotForce = 0;
+    int time;
+    int timer_init = millis();
+    // while (!Serial2.available()){
+    //     Serial.println("Waiting for signal...");
+    //     time = millis();
+    //     if ((time-timer_init)>MAX_TRANSM_DELAY){
+    //         Serial.println("No signal recieved... Check connectivity");
+    //         return 0;
+    //     }
+    //     delay(250);
+    // }
 
-        // UNDER CONSTRUCTION !!!
-        /*
-        if (character == "<"){}
-        else if (character[0] == ">"){
+//---- Consider using while(Serial2.read() != msg_delimiter_end) ??? --------
+
+    while (Serial2.available()>0 && i<10){
+        character = Serial2.read();
+        if (character == msg_delimiter_init[0]){
+            i = 0;
+        }
+        else if (character == msg_delimiter_end[0]){
+            i = 0;
             break;
         }
         else{
-            force[i] = character[0];
+            force_message[i] = character;
             i++;
         }
-        */
     }
-
-    Serial.println(String("Force recieved:\t")+String(sPos5));
-    sPos5 = atoi(force);
-    return(sPos5);
+    robotForce = atoi(force_message);
+//    Serial.println(String("Force recieved:\t")+String(robotForce));
+    return(robotForce);
 }
 
-#endif
+int scaleFactor(void){
+    int scale = 20;
+    return (force_message_reciever() / scale);
+}
+
+
+
+//-------Deprecated Use force_message_reciever();------------------------------
+// void receive_command(){
+//   char force[10];
+//   int i = 0;
+
+//   while (!Serial2.available());
+//   while (Serial2.available()>0){
+//     char string = Serial2.read();
+//     //Serial.print(string);
+//     force[i] = string;
+//     i++;
+//   }
+
+//   sPos5 = atoi(force);
+//   Serial.println(sPos5);
+//   //delay(200);
+//   driveServos();
+// }
