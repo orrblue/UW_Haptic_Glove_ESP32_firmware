@@ -17,8 +17,8 @@ int force_message_reciever(){
     char msg_delimiter_end[] = ">";
     int i = 0;
     int robotForce = 0;
-    int time;
-    int timer_init = millis();
+    //int time;
+    //int timer_init = millis();
     // while (!Serial2.available()){
     //     Serial.println("Waiting for signal...");
     //     time = millis();
@@ -46,7 +46,7 @@ int force_message_reciever(){
         }
     }
     robotForce = atoi(force_message);
-//    Serial.println(String("Force recieved:\t")+String(robotForce));
+    //Serial.println(String("Force recieved:\t")+String(robotForce));
     return(robotForce);
 }
 

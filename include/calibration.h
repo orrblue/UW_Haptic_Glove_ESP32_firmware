@@ -36,7 +36,7 @@
 void setupServos();
 void driveServos();
 
-int sPos[] = {1000, 1000, 1000, 1000, 1000};
+int servoPosition[] = {1000, 1000, 1000, 1000, 1000};
 int force[numOfFingers];
 String Fingers[] = {"little", "ring", "middle", "index", "thumb"};
 Servo Servos[numOfFingers];
@@ -136,7 +136,7 @@ void calibration(){
 
 // }
 
-int calcForceRange(){
+void calcForceRange(){
     for (int i = 0; i < numOfFingers; i++){
         forceRange[i] = clenchForce[i] - restForce[i];
         if(forceRange[i] < minimumRange){

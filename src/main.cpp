@@ -11,27 +11,20 @@
 #include "adc_to_newtons.h"
 #include "sender.h"
 #include "reciever.h"
-#include "MovingAvg.h"
 #include "MotionFuncs.h"
 
-  // an array to store the received data
 int state = 'b'; //waiting
-// int Pos_offset = 10;
-// int Neg_offset = 10;
-// uint delay_time = 1;
-int listSize = 10;
-// int driveSpeed = 1;
-
-MovingAverage* avg_force[5];
-float forceAverage[5];
+int lastState = 'b'; //waiting
+int listSize = 100;
 
 #define MAXFORCE 3000
 
 bool calibrated = false;
 
 void robotControl(){
- // Pos_offset = 20 + scaleFactor();
-  followFingers();
+  Pos_offset = 5 + scaleFactor(); //Get force from robot and scales it
+  //followFingers();
+  followFingersAverage();
   send_control(averageFingerPos());
 }
 
@@ -45,8 +38,10 @@ void controller() {
       break;
     }
     case 'b' : { //Waiting 
+      setupServos();
       Serial.println("Waiting");
       delay(1000);
+      lastState = state;
       break;
     }
     case 'c' : { // Calibrate Glove
@@ -67,12 +62,16 @@ void controller() {
     }
     case 'e' : { // Free following 
       followFingers();
-      Serial.println("Following");
+      //Serial.println("Following");
+      lastState = state;
       break;
     }
     case 'f' : { // Robot Control
      // Serial.println("controlling Robot");
+      //int timer = micros();
       robotControl();
+      //Serial.println(micros() - timer);
+      lastState = state;
       break;
     }
     case 'p' : { // Increase Force
@@ -88,53 +87,49 @@ void controller() {
       Pos_offset -= 1;
       Neg_offset -= 1;
       Serial.println(Pos_offset);
-      state = 'f';
+      state = lastState;
       break;
     }
     case 'i' : { // Increase Time Delay
-      Serial.println("increasing time delay");
-      delay_time += 1;
-      state = 'f';
+      delay_time += 10;
+      Serial.print("increasing time delay to ");
+      Serial.print(delay_time);
+      Serial.println(" microseconds");
+      state = lastState;;
       break;
     }  
     case 'o' : { // Decrease Time Delay
-      Serial.println("decreasing time delay");
-      delay_time -= 1;
-      state = 'f';
+      delay_time -= 10;
+      if(delay_time < 11){
+        delay_time = 10;
+        Serial.println("Time delay is ~ Zero");
+      }
+      else {
+        Serial.print("decreasing time delay to ");
+        Serial.print(delay_time);
+        Serial.println(" microseconds");
+      }
+      state = lastState;;
       break;
     } 
     case 'w' : { // Increasing speed
       Serial.print("Increasing speed to ");
       driveSpeed += 1;
       Serial.println(driveSpeed);
-      state = 'f';
+      state = lastState;
       break;
     }
-    case 's' : { // Decreasing list
+    case 's' : { // Decreasing speed
       Serial.print("decreasing speed to ");
       driveSpeed -= 1;
       if(driveSpeed < 1){
         driveSpeed = 0;
-        Serial.println("Zero drive speed")
+        Serial.println("Zero drive speed");
       }
       Serial.println(driveSpeed);
-      state = 'f';
+      state = lastState;
       break;
     }
-    case 'l' : { // Decreasing list
-      Serial.print("Decreasing list length");
-      Serial.println(listSize);
-      listSize -= 1;
-      state = 'f';
-      break;
-    }
-    case 'k' : { // Increasing list
-      Serial.print("Increasing list length");
-      Serial.println(listSize);
-      listSize += 1;
-      state = 'f';
-      break;
-    }    
     default : { // Default Case
       Serial.println("Invalid state");
       state = 'a';
@@ -151,28 +146,28 @@ void setup() {
   }
   for(int j = 0; j < listSize; j++){
     for(int i = 0; i < 5; i++){
-    forceAverage[i] = update_moving_average_value(avg_force[i], analogRead(FFPins[i]));
+      forceAverage[i] = update_moving_average_value(avg_force[i], analogRead(FFPins[i]));
+    }
   }
-}
   setupServos();
   delay(200);
   calibrateForceZero();
   delay(1000);
 }
 
-
 void loop() {
-
-  // for(int i = 0; i < 5; i++){
-  //   forceAverage[i] = update_moving_average_value(avg_force[i], analogRead(FFPins[i]));
-  // }
-  
-  // Serial.println(forceAverage[0]);
 
   if (Serial.available() > 0) {
     state = Serial.read();
   }
   controller();
+  // force_message_reciever();
+
+  for(int i = 0; i < 5; i++){
+    forceAverage[i] = update_moving_average_value(avg_force[i], analogRead(FFPins[i]));
+  }
+  // Serial.println(forceAverage[0]);
+
   // Serial.print("Averaged ");
   // Serial.println(forceAverage[2]);
   // Serial.println("");
