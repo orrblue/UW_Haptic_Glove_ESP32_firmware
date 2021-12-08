@@ -8,16 +8,31 @@
 #include <Arduino.h>
 #include "calibration.h"
 #include "pin_config.h"
-#include "adc_to_newtons.h"
 #include "sender.h"
 #include "reciever.h"
 #include "MotionFuncs.h"
+//#include "adc.h"
 
 int state = 'b'; //waiting
 int lastState = 'b'; //waiting
 int listSize = 100;
 
 #define MAXFORCE 3000
+
+/* * * * * * * * * * * * * * * * * * * *
+ * THIS MUST BE REMOVED AFTER TEST
+ * OF UART BETWEEN PINCHER AND GLOVE!!!
+ * * * * * * * * * * * * * * * * * * * */
+
+#define PLATFORM 1
+#if PLATFORM!=1 & PLATFORM!=2
+#error [ERROR] PLATFORM must be 1 or 2
+#endif
+
+/* * * * * * * *
+ * 1 = Pincher
+ * 2 = Glove
+ * * * * * * * */
 
 bool calibrated = false;
 
