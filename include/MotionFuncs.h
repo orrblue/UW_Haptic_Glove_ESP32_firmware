@@ -8,6 +8,8 @@
 MovingAverage* avg_force[5];
 float forceAverage[5];
 
+int motorTest = 0;
+
 int Pos_offset = 10;
 int Neg_offset = 10;
 // int driveSpeed[numOfFingers] = {1,1,1,1,1}; //upgrade to differnt drive speeds after finger calibration
@@ -134,6 +136,79 @@ void followFingersAverage(void){
     }
   }
   driveServos();
+}
+
+
+// void driveHackedServo(void){
+ 
+// const int INB = 2;
+
+// int dutyCycle;
+// int dutyCycle1 = 0;
+// /* Setting PWM Properties */
+// const int PWMFreq = 10000; /* 10 KHz */
+// const int PWMChannel0 = 0;
+// const int PWMChannel1 = 1;
+// const int PWMResolution = 10;
+// const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
+// void setup()
+// {  
+//   ledcSetup(PWMChannel0, PWMFreq, PWMResolution);
+//   ledcSetup(PWMChannel1, PWMFreq, PWMResolution);
+//   /* Attach the LED PWM Channel to the GPIO Pin */
+//   ledcAttachPin(LEDPin, PWMChannel0);
+//   ledcAttachPin(INB, PWMChannel1);
+  
+// }
+// void loop()
+// {
+//   if(dutyCycle1 < 1){
+//     dutyCycle1 = MAX_DUTY_CYCLE;
+//   } else dutyCycle1 = 0;
+  
+//   ledcWrite(PWMChannel1, dutyCycle1);
+//   /* Increasing the LED brightness with PWM */
+//   for(dutyCycle = 0; dutyCycle <= MAX_DUTY_CYCLE; dutyCycle++)
+//   {
+//     ledcWrite(PWMChannel0, dutyCycle);
+//     delay(3);
+//     //delayMicroseconds(100);
+//   }
+//       /* Decreasing the LED brightness with PWM */
+//   for(dutyCycle = MAX_DUTY_CYCLE; dutyCycle >= 0; dutyCycle--)
+//   {
+//     ledcWrite(PWMChannel0, dutyCycle);
+//     delay(3);
+//     //delayMicroseconds(100);
+//   }
+// }
+// }
+
+void driveHackedServoDeprecated(void){
+
+digitalWrite(INA, LOW);
+  while(motorTest < 254)
+  { 
+    int AnalogValue = analogRead(FFPins[1]);
+    Serial.print("The direction of output shaft is ");
+    Serial.println(AnalogValue);
+    Serial.print("The 8bit motor PWM signal is ");
+    Serial.println(motorTest);
+    analogWrite(INB, motorTest);
+    motorTest ++ ;
+    delay(20);
+  }
+  while(motorTest > 30)
+  {
+    int AnalogValue = analogRead(FFPins[1]);
+    Serial.print("The direction of output shaft is ");
+    Serial.println(AnalogValue);
+    Serial.print("The 8bit motor PWM signal is ");
+    Serial.println(motorTest);
+    analogWrite(INB, motorTest);
+    motorTest -- ;
+    delay(20);
+  }
 }
 
 //--------Function to close robot arm until it feels an object then open in a loop

@@ -164,6 +164,12 @@ void setup() {
       forceAverage[i] = update_moving_average_value(avg_force[i], analogRead(FFPins[i]));
     }
   }
+
+  //---
+  pinMode(INA, OUTPUT);
+  pinMode(INB, OUTPUT);
+  pinMode(LOGOLED, OUTPUT);
+
   setupServos();
   delay(200);
   calibrateForceZero();
@@ -172,11 +178,11 @@ void setup() {
 
 void loop() {
 
+
   if (Serial.available() > 0) {
     state = Serial.read();
   }
   controller();
-  // force_message_reciever();
 
   for(int i = 0; i < 5; i++){
     forceAverage[i] = update_moving_average_value(avg_force[i], analogRead(FFPins[i]));
@@ -192,6 +198,5 @@ void loop() {
 
   // followFingers();
   // driveServos();
-  // readForce();
-  // printForce();
+  
 }
