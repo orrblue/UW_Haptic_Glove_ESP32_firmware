@@ -40,3 +40,14 @@ static float update_moving_average_value(MovingAverage* avg, int val) {
   add_moving_average_value(avg, val);
   return get_moving_average_value(avg);
 }
+
+// void initializeMovingAvg(){
+//   for(int i = 0; i < 5; i++){
+//     avg_force[i] = construct_moving_average(listSize);
+//   }
+//   for(int j = 0; j < listSize; j++){
+//     for(int i = 0; i < 5; i++){
+//       forceAverage[i] = update_moving_average_value(avg_force[i], analogRead(FFPins[i]));
+//     }
+//   }
+// }
