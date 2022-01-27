@@ -190,7 +190,7 @@ void setup() {
 
 void loop() {
 
-testMotors(2); // 2ms delay time sets speed of ramp up and down.
+testMotors(2); // 2ms delay time sets speed of ramp up
 
 
 

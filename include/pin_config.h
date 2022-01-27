@@ -21,6 +21,14 @@
 #define IndexEnc 14
 #define ThumbEnc 4
 
+#define LOGOLED 23
+
+#define PWM1_Ch    0
+#define PWM1_Res   8
+#define PWM1_Freq  20000
+#define INA 2
+#define INB 15
+
 #define FF1 36
 #define FF2 39
 #define FF3 34

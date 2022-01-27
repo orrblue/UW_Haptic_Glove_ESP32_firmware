@@ -1,4 +1,4 @@
-/*
+/**
  * Remote Feelings: Adam Curtis, Aymeric Wang, Xinying Hu
  * 11/30/21
  * Prototype version. Author: Aymeric Wang with edits and additions by Adam Curtis
@@ -56,7 +56,7 @@ int fingerPosMax[numOfFingers] = {0,1571,1008,234,1169};
 int minimumRange = 50;
 float scalerTuner = 200;
 
-
+// To use for calibration
 void calibration(){
  
     Serial.println("Open your hand all the way please :)");
@@ -165,6 +165,15 @@ void calcOffsetScaler(){
     }
 }
 
+void calcOffsetScaler(){
+    for(int i = 0; i < numOfFingers; i++){
+        forceScaler[i] = float(forceRange[i]) / scalerTuner;
+        Serial.print("Force Scaler for ");
+        Serial.print(Fingers[i]);
+        Serial.print(" is ");
+        Serial.println(forceScaler[i]);
+    }
+}
 
 bool confirmation(bool calibrated){
     label1:

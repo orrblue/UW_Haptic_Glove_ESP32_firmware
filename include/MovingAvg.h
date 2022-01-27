@@ -1,3 +1,6 @@
+#ifndef MOVING_AVG_H
+#define MOVING_AVG_H
+
 #include <Arduino.h>
 
 
