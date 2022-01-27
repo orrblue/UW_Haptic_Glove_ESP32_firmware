@@ -155,26 +155,6 @@ void calcForceRange(){
     }
 }
 
-void calcOffsetScaler(){
-    for(int i = 0; i < numOfFingers; i++){
-        forceScaler[i] = float(forceRange[i]) / scalerTuner;
-        Serial.print("Force Scaler for ");
-        Serial.print(Fingers[i]);
-        Serial.print(" is ");
-        Serial.println(forceScaler[i]);
-    }
-}
-
-void calcOffsetScaler(){
-    for(int i = 0; i < numOfFingers; i++){
-        forceScaler[i] = float(forceRange[i]) / scalerTuner;
-        Serial.print("Force Scaler for ");
-        Serial.print(Fingers[i]);
-        Serial.print(" is ");
-        Serial.println(forceScaler[i]);
-    }
-}
-
 bool confirmation(bool calibrated){
     label1:
     delay(200);
