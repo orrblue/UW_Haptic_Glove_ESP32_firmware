@@ -9,27 +9,21 @@
 #include "calibration.h"
 #include "pin_config.h"
 #include "ForceFuncs.h"
-//#include "MovingAvg.h"
+#include "reciever.h"
 
-//MovingAverage* avg_force[5];
 float forceAverage[5];
-
-int motorTest = 0;
-
-bool direction = 1;
-int accelerationScale  = 20;
-int robotForce = 0;
-int Neg_offset = 1;
-int thumbHoldDown = 200;
-// int driveSpeed[numOfFingers] = {1,1,1,1,1}; //upgrade to differnt drive speeds after finger calibration
 int driveSpeed[5];
+// int driveSpeed[numOfFingers] = {1,1,1,1,1}; //upgrade to differnt drive speeds after finger calibration
+
+
+int thumbHoldDown = 200;
+
 int robotForceThreshold = 1;
 float Kp = 1.7;
 float Ki = 0.0;
-float Kr = 1.8;
 uint delay_time = 1000;
-bool forward[5];
-//-----------------Motor Variables
+
+//-------------------------Motor Variables-------------------------
 int dutyCycle = 0;
 int dutyCycle1 = 0;
 /* Setting PWM Properties */
@@ -79,6 +73,7 @@ void readFingerPositions(){
 void driveMotorsV2(){
   int motorSpeed[numOfFingers];
   for(int i = 0; i < numOfFingers; i++){
+    bool direction = 0;
     if(driveSpeed[i] < 0){ // set direction
       direction = 0;
       motorSpeed[i] = -1 * driveSpeed[i];
@@ -100,14 +95,15 @@ void driveMotorsV2(){
 }
 
 void testMotors(int delay_time){
-  for(int i = -800; i < 800; i++){
+  int max = 1000;
+  for(int i = -max; i < max; i++){
     for(int j = 0; j < numOfFingers; j++){
       driveSpeed[j] = i;  
     }
     driveMotorsV2();
     delay(delay_time);
   }
-  for(int i = 800; i > -800; i--){
+  for(int i = max; i > -max; i--){
     for(int j = 0; j < numOfFingers; j++){
       driveSpeed[j] = i;  
     }
@@ -122,17 +118,33 @@ void stopMotors(){
   driveMotorsV2(); // zero speed
 }
 
+float smooth_force(int force){
+  static int avg_force[10];
+  long long longForce = 0;
+  static unsigned int i = 0;
+  avg_force[i] = force;
+  for(int j = 0; j < 10; j++){
+    longForce += avg_force[j];
+  }
+  float output = (float)longForce / 10.0;
+  i++;
+  if(i > 9)
+    i = 0;
+  return output;
+}
+
 void V2FollowandForce(){
+  static float Kr = 8;
+  float smoothed_force = smooth_force(robotForce);
   readForce();
   for(int i = 0; i < (numOfFingers); i++){
-    driveSpeed[i] =  (-Kp * (force[i] - restForce[i]) + Kr * robotForce);
-  //   if(driveSpeed[i] <  (-Kp * (force[i] - restForce[i]) + Kr * robotForce)){
-  //     driveSpeed[i] +=10;
-  //   }
-  //   else
-  //     driveSpeed[i] -= 1;
+    if(i > 2){
+      driveSpeed[i] =  (-Kp * (force[i] - restForce[i]) + Kr * smoothed_force);
+    }
+    else{
+      driveSpeed[i] =  (-Kp * (force[i] - restForce[i]));
+    }
   }
-  //driveSpeed[0] = 0;
   driveMotorsV2();
 }
 
@@ -163,27 +175,16 @@ void followFingersV2(){ // barebones function. Needs work to correctly impliment
 }
 
 
-void applyRobotForce(){
-  if(robotForce < 100)
-      followFingersV2();
-  else{
-    for(int i = 0; i < (numOfFingers); i++){
-      // readFingerPositions();
-      // if(fingerPos[i] > fingerPosMin[i] && fingerPos[i] < fingerPosMax[i]){ // check that finger is in safe place
-      
-      driveSpeed[i] = robotForce;
-      // } else{
-      //   driveSpeed[i] = 0;
-      //    // finger out of safe range stop motor
-      //   Serial.print(Fingers[i]);
-      //   Serial.println(" out of range");
-      //}
-    }
-  }
-  //driveSpeed[0] = 0;
-  //driveSpeed[4] += thumbHoldDown;
-  driveMotorsV2();
-}
+// void applyRobotForce(){
+//   if(robotForce < 100)
+//       followFingersV2();
+//   else{
+//     for(int i = 0; i < (numOfFingers); i++){
+//       driveSpeed[i] = robotForce;
+//     }
+//   }
+//   driveMotorsV2();
+// }
 
 // void setupServos(void){
 //   // Allow allocation of all timers

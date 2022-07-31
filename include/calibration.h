@@ -40,7 +40,7 @@
 
 int force[numOfFingers];
 String Fingers[] = {"little", "ring", "middle", "index", "thumb"};
-long int restForce[numOfFingers] = {2150,2100,2130,2100,2300};
+long int restForce[numOfFingers] = {1860,1720,1400,1840,2100};
 long int clenchForce[numOfFingers];
 int forceRange[numOfFingers];
 float forceScaler[numOfFingers];

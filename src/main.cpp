@@ -3,15 +3,14 @@
  * 11/30/21
  * Prototype version. Author: Adam Curtis, Aymeric Wang
  */
-//adam made a change
-//#include <ESP32Servo.h>
 #include <Arduino.h>
 #include "calibration.h"
 #include "pin_config.h"
 #include "sender.h"
+#ifndef SENDER_H
 #include "reciever.h"
+#endif
 #include "MotionFuncs.h"
-//#include "adc.h"
 
 int state = 'b'; //waiting
 int lastState = 'b'; //waiting
@@ -20,22 +19,20 @@ int robotMin = 1800;
 
 #define MAXFORCE 3000
 
-/* * * * * * * * * * * * * * * * * * * *
- * THIS MUST BE REMOVED AFTER TEST
- * OF UART BETWEEN PINCHER AND GLOVE!!!
- * * * * * * * * * * * * * * * * * * * */
-
-// #define PLATFORM 1
-// #if PLATFORM!=1 & PLATFORM!=2
-// #error [ERROR] PLATFORM must be 1 or 2
-// #endif
-
-/* * * * * * * *
- * 1 = Pincher
- * 2 = Glove
- * * * * * * * */
-
 bool calibrated = false;
+
+void simulate(void){
+
+  //===============James's simulator==================
+  // static long int lastTime = 0;
+  //int update = 20;
+  V2FollowandForce();
+  //applyRobotForce();  
+  //scale value before sending        
+  readFingerPositions();
+  send_control(fingerPos[0],fingerPos[1],fingerPos[2],fingerPos[3],fingerPos[4]);
+
+}
 
 int averageFingerPos(void){
   long int Pos_total = 0;
@@ -50,16 +47,17 @@ int averageFingerPos(void){
 
 void robotControl(){
   //Gets force from robot and scales it
-  robotForce = scaleFactor(); 
-  //Serial.println(robotForce);
+  // robotForce = scaleFactor(); 
+
   //Track finger position
   V2FollowandForce();
-  //applyRobotForce();  
+  
   //scale value before sending        
-  int corrected_value = robotMin - 0.8 * (2*averageFingerPos() - (pinch[3] + pinch[4])); 
-  //controls robot gripper position
+  //int corrected_value = robotMin - 0.8 * (2*averageFingerPos() - (pinch[3] + pinch[4])); 
+  //controls robot gripper position with just thumb and index finger
+
   //send_control(corrected_value); 
-  delayMicroseconds(delay_time); //tunable parameter to synchronize uart communication
+  //delayMicroseconds(delay_time); //tunable parameter to synchronize uart communication
 }
 
 void controller() { // state machine takes keyboard inputs 
@@ -71,6 +69,7 @@ void controller() { // state machine takes keyboard inputs
       state = 'b';
       break;
     }
+
     case 'b' : { //Waiting 
       Serial.println("Waiting");
       printFingerPositions();
@@ -79,6 +78,7 @@ void controller() { // state machine takes keyboard inputs
       lastState = state;
       break;
     }
+
     case 'c' : { // Calibrte Glove
       Serial.println("Calibrating Glove");
       //setupServos();
@@ -88,13 +88,7 @@ void controller() { // state machine takes keyboard inputs
       state = 'b';
       break;
     }
-    // case 'd' : { // Calculate Range
-    //   Serial.println("Calculating Force range");
-    //   calcForceRange();
-    //   calcOffsetScaler();
-    //   state = 'b';
-    //   break;
-    // }
+
     case 'e' : { // Free following 
       
       V2FollowandForce();
@@ -102,34 +96,13 @@ void controller() { // state machine takes keyboard inputs
       lastState = state;
       break;
     }
+
     case 'f' : { // Robot Control
       robotControl();
       lastState = state;
       break;
     }
-    case 'p' : { // Increase Force
-      Serial.print("increasing force to ");
-      robotForce += 1;
-      Kr += 0.01;
-      //Neg_offset += 1;
-      Serial.println(robotForce);
-      state = lastState;;
-      break;
-    }
-    case ';' : { // Decrease Force
-      robotForce -= 1;
-      Kr -= 0.01;
-      //Neg_offset -= 1;
-      if(Kp < 1)
-        Kp = 0;
-      if(robotForce < 1){
-        robotForce = 0;
-      }
-      Serial.print("Decreasing force to ");
-      Serial.println(robotForce);
-      state = lastState;
-      break;
-    }
+
     case 'i' : { // Increase Time Delay
       delay_time += 10;
       Serial.print("increasing time delay to ");
@@ -138,6 +111,7 @@ void controller() { // state machine takes keyboard inputs
       state = lastState;;
       break;
     }  
+
     case 'o' : { // Decrease Time Delay
       delay_time -= 10;
       if(delay_time < 11){
@@ -152,27 +126,7 @@ void controller() { // state machine takes keyboard inputs
       state = lastState;;
       break;
     } 
-    // case 'w' : { // Increasing speed
-    //   Serial.print("Increasing speed to ");
-    //   driveSpeed[0] += 10;
-    //   Serial.println(driveSpeed[0]);
-    //   state = lastState;
-    //   break;
-    // }
-    // case 's' : { // Decreasing speed
-    //   Serial.print("decreasing speed to ");
-    //   driveSpeed[0] -= 10;
-    //   if(driveSpeed[0] < 11){
-    //     driveSpeed[0] = 0;
-    //     Serial.println("Zero drive speed");
-    //     if(direction){
-    //       direction = 0;
-    //     }else direction = 1;
-    //   }
-    //   Serial.println(driveSpeed[0]);
-    //   state = lastState;
-    //   break;
-    // }
+
     default : { // Default Case
       Serial.println("Invalid state");
       state = 'a';
@@ -190,33 +144,24 @@ void setup() {
 
 void loop() {
 
-testMotors(2); // 2ms delay time sets speed of ramp up
+  //printForce();
+  // testMotors(2); // 2ms delay time sets speed of ramp up
+  // printFingerPositions();
+  // delay(100);
+  
+  
+  //followFingersV2(); //Just move with finger motion, nothing else
+  // printForce();
+  // delay(100);
+  simulate(); // Calls James's simulation interface
+  force_message_reciever_two();
+  // delay(10);
 
-
-
-//   //===============James's simulator==================
-//   // static long int lastTime = 0;
-//   int update = 20;
-//   V2FollowandForce();
-//   //applyRobotForce();  
-//   //scale value before sending        
-//   readFingerPositions();
-//   //controls robot gripper position
-//  // long int now = millis();
-//  // if((now - lastTime) > update){
-//     send_control(fingerPos[0],fingerPos[1],fingerPos[2],fingerPos[3],fingerPos[4]);
-
-//   //   lastTime = now;
-//   // }
-//   //===================================================  
- 
   
   /************** Use for access to state machine controller *********
   if (Serial.available() > 0) {                                      
     state = Serial.read();                                  
   }
   controller();
-  *******************************************************************/
-
-  
+  ********************************************************************/
 }

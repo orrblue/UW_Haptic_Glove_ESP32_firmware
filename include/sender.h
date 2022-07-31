@@ -10,21 +10,6 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-/** * * * * * * * * * * * * * * * * *
- * @brief Sample code for setup() and loop()
- * 
- * @setup
- * void setup() {
- *  Serial.begin(115200);
- * }
- * 
- * @loop
- * void loop() {
- *  long int local_force;
- *  force_send(local_force);
- *  delay(500);
- * * * * * * * * * * * * * * * * * * * * */
-
 
 void message_send(String message){
   String formatted_message;
