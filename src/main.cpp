@@ -10,57 +10,31 @@
 #ifndef SENDER_H
 #include "reciever.h"
 #endif
+#ifndef MOTIONFUNKS_H
 #include "MotionFuncs.h"
+#endif
 
-int state = 'b'; //waiting
-int lastState = 'b'; //waiting
-int listSize = 100;
-int robotMin = 1800;
-
-#define MAXFORCE 3000
+// int state = 'b'; //waiting
+// int lastState = 'b'; //waiting
 
 bool calibrated = false;
 
-void simulate(void){
+void interactOverUART(void){
+  /* --------- Interacts over UART sending and receiving 8 bit numbers -------- */
 
-  //===============James's simulator==================
-  // static long int lastTime = 0;
-  //int update = 20;
-  V2FollowandForce();
-  //applyRobotForce();  
-  //scale value before sending        
-  readFingerPositions();
-  send_control(fingerPos[0],fingerPos[1],fingerPos[2],fingerPos[3],fingerPos[4]);
-
-}
-
-int averageFingerPos(void){
-  long int Pos_total = 0;
-  readFingerPositions();
-  for (int i = 3; i < 5; i++){
-     Pos_total += fingerPos[i];
-  }
-  int Pos_AVG = Pos_total / 2;
-  //Serial.println(Pos_AVG);
-  return Pos_AVG;
-}
-
-void robotControl(){
-  //Gets force from robot and scales it
-  // robotForce = scaleFactor(); 
-
-  //Track finger position
-  V2FollowandForce();
-  
-  //scale value before sending        
-  //int corrected_value = robotMin - 0.8 * (2*averageFingerPos() - (pinch[3] + pinch[4])); 
-  //controls robot gripper position with just thumb and index finger
-
-  //send_control(corrected_value); 
-  //delayMicroseconds(delay_time); //tunable parameter to synchronize uart communication
+  force_message_reciever(); // Gets in new force values from VR or robot
+  V2FollowandForce(); // Applies appropriate force to fingers
+  readFingerPositions(); // Checks where the fingers are
+  // Sends finger location to VR or robot 
+  send_control();
 }
 
 void controller() { // state machine takes keyboard inputs 
+  static int state = 'b'; //waiting
+  static int lastState = 'b'; //waiting
+
+  if (Serial.available() > 0) state = Serial.read(); // enter a letter to switch states
+
   switch(state) {
     
     case 'a' : { // STOP!!
@@ -79,26 +53,22 @@ void controller() { // state machine takes keyboard inputs
       break;
     }
 
-    case 'c' : { // Calibrte Glove
+    case 'c' : { // Calibrate Glove
       Serial.println("Calibrating Glove");
-      //setupServos();
       calibration();
-      //setupServos();
       delay(200);
       state = 'b';
       break;
     }
 
     case 'e' : { // Free following 
-      
-      V2FollowandForce();
-      //Serial.println("Following");
+      followFingersV2();
       lastState = state;
       break;
     }
 
-    case 'f' : { // Robot Control
-      robotControl();
+    case 'f' : { // VR or Robot Control
+      interactOverUART();
       lastState = state;
       break;
     }
@@ -134,34 +104,89 @@ void controller() { // state machine takes keyboard inputs
   }
 }
 
+void manualCalibration(){
+
+  /* --------------------------- manual calibration --------------------------- */
+  // ===STEP ONE=== 
+  //  a. Make sure your motors and encoders work. Uncomment the functions in the block below. 
+  // This will make the motors spin backward and forward to make sure the motor drivers are working correctly.
+  //  b. printFingerPosition() function makes sure the encoder in the motor works too. These numbers 
+  // should be changing when the motor moves===
+
+  testMotors(2); // function argument = ms delay. 2ms delay time sets a good speed of ramp up
+  printFingerPositions();
+  delay(100);
+  
+  // ===END STEP ONE. Put these lines back in comments===
+  
+  // ===STEP TWO===
+  //  a. Uncomment the printForce() function and upload.
+  //  b. Push on the motors and make sure the numbers being printed are changing.
+  //  c. Stop pushing on the motors and let them sit naturally. Enter the resting values in the calibration header file.
+
+  // printForce();
+  // delay(100);
+  
+  // ===END STEP TWO. Put this line back in comments===
+
+  // ===STEP THREE===
+  //  a. Uncomment the function below and upload 
+  //  b. Rotate the output shafts of the servos so that the full range of finger motion does not cross the  
+  // discontinuity between highest and lowest value. Attach the physical hardware fingers to the glove and 
+  // verify that you don't hit zero or 4096
+
+  // printFingerPositions(); //prints out the location of each finger. 
+  // delay(100);
+
+  // ===END STEP THREE. Leave this function running.
+
+  // ===STEP FOUR=== 
+  //  a. With the same function running. Put on the glove, and curl each finger into your palm.
+  //    i. Record this number in the fingerPosMin[] array starting with pinky, going to thumb
+  //  b. Now extend each finger to its maximum open position
+  //    i. Record this number in the fingerPosMax[] array starting with pinky, going to thumb
+
+  // NOTE*** MIN can be higher or lower than MAX and vice versa. This is normal.
+
+  // END STEP FOUR. Comment out this function again.
+
+  // STEP FIVE. Uncomment the followFingersV2 function, upload, and move your fingers. 
+  // The motors should help drive the exoskeleton to follow your fingers
+
+  // followFingersV2(); //Just move with your finger motion, nothing else
+
+  // END STEP FIVE. Put this line back in comments
+
+  /* ------------------------- end manual calibration ------------------------- */  
+
+}
+
 void setup() {
 	Serial.begin(115200);
-  //Serial2.begin(115200, SERIAL_8N1,RXp2,TXp2);
   setupMotors();
-  //initializeMovingAvg();
   delay(1000);
 }
 
 void loop() {
+  
+  /* -------------------------------------------------------------------------- */
+  /*       Use the following functions by uncommenting ONLY ONE AT A TIME       */
+  /* -------------------------------------------------------------------------- */
 
-  //printForce();
-  // testMotors(2); // 2ms delay time sets speed of ramp up
-  // printFingerPositions();
-  // delay(100);
-  
-  
-  //followFingersV2(); //Just move with finger motion, nothing else
-  // printForce();
-  // delay(100);
-  simulate(); // Calls James's simulation interface
-  force_message_reciever_two();
-  // delay(10);
 
-  
-  /************** Use for access to state machine controller *********
-  if (Serial.available() > 0) {                                      
-    state = Serial.read();                                  
-  }
-  controller();
-  ********************************************************************/
+  /* --------------------------- manual calibration --------------------------- */
+  // Uncomment ONLY this function and follow the instructions in the function body
+  manualCalibration();
+  /* ------------------------- end manual calibration ------------------------- */
+
+
+  /* ------------------- Connect to VR or a robot over UART ------------------- */
+  // Uncomment ONLY this function
+  // interactOverUART(); // Calls James's simulation interface
+  /* ------------------------- end VR or robot control ------------------------ */
+
+
+  /* --------------- Use for access to state machine controller --------------- */
+  // controller();
+  /* ------------------------- end state machine code ------------------------- */
 }

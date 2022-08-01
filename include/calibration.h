@@ -15,10 +15,6 @@
 #include "pin_config.h"
 #include "adc_to_newtons.h"
 
-#define RESISTIVE_FORCE_THRESHOLD 4
-#define DANGER_FORCE_THRESHOLD 8
-#define numOfFingers 5
-
 /* * * * * * * * * * * * * * * * * * * * * *
  * We define a series of global variables
  * identified from 1 to 5. They each
@@ -29,36 +25,34 @@
  *      ... and so on ...
  *      5. is the thumb
  * * * * * * * * * * * * * * * * * * * * * */
-
-# define medium (int(MAX_PULSE_WIDTH+MIN_PULSE_WIDTH)/2)
-# define samples 50
-
-//void setupServos();
-//void driveServos();
-//int servoPosition[] = {1000, 1000, 1000, 1000, 1000};
-//Servo Servos[numOfFingers];
-
+#define numOfFingers 5
 int force[numOfFingers];
 String Fingers[] = {"little", "ring", "middle", "index", "thumb"};
-long int restForce[numOfFingers] = {1860,1720,1400,1840,2100};
 long int clenchForce[numOfFingers];
 int forceRange[numOfFingers];
 float forceScaler[numOfFingers];
+int pinch[numOfFingers] = {0,1114,1506,434,1262}; // where the finger is now
+int fingerPos[numOfFingers];
 
-int pinch[numOfFingers] = {0,1114,1506,434,1262};
-int fingerPosMin[numOfFingers] = {0,644,2131,1338,1520};
-int fingerPosMax[numOfFingers] = {0,1571,1008,234,1169};
+#if ADAM // Original glove
+int fingerPosMin[numOfFingers] = {400,650,2200,1300,1600}; // hand all the way closed
+int fingerPosMax[numOfFingers] = {1200,1500,1000,275,550}; // hand all the way open 
+long int restForce[numOfFingers] = {1860,1720,1400,1840,2100}; // preload force on the force sensor
+#endif
 
-//-----------Incrementer-----------
-//int calibrationTracker = 0;
+#if NEWUSER // Your glove
+/* --------------------------- manual calibration --------------------------- */
+// Easiest to start before you put the fingers onto the glove motors.
+// Follow steps in main.cpp under manual calibration function. It was too hard put it here. 
+long int restForce[numOfFingers] = {1860,1720,1400,1840,2100}; // preload force on the force sensor
+int fingerPosMin[numOfFingers] = {0,644,2131,1338,1520}; // hand all the way closed
+int fingerPosMax[numOfFingers] = {0,1571,1008,234,1169}; // hand all the way open 
+#endif
 
-//---------Tuners ------------
-int minimumRange = 50;
-float scalerTuner = 200;
-
-// To use for calibration
+// To use for calibration (Not working 7/31/22)
 void calibration(){
- 
+    
+    int samples = 50;
     Serial.println("Open your hand all the way please :)");
     delay(3000);
     
@@ -100,50 +94,9 @@ void calibration(){
 }
 
 
-
-// void calibration(){
-//     Serial.println("Loose your hand...");
-//     delay(1500);
-
-//     for(int i = 0; i < numOfFingers; i++){
-//         sPos[i] = medium;
-//     }
-//     driveServos();
-
-//     for (int i=0; i < samples; i++){
-//         for(unsigned int a = 0; a<numOfFingers; a++){
-//             delay(2);
-//             int force = analogRead(FFPins[a]);
-//             restForce[a] += force;
-//             Serial.println(String("ADC of ")+String(Fingers[a])+String(":\t")+String(force));
-//         }
-//         delay(50);
-//     }
-//     for(unsigned int a = 0; a < numOfFingers; a++){
-//         restForce[a] = restForce[a]/samples;
-//         Serial.println(restForce[a]);
-//     }
-    
-//     Serial.println("GENTLY clench...");
-//     delay(1000);
-
-//     for (int i=0; i < samples; i++){
-//         for(unsigned int a = 0; a < numOfFingers; a++){
-//             delay(2);
-//             int force = analogRead(FFPins[a]);
-//             clenchForce[a] += force;
-//             Serial.println(String("ADC of ")+String(Fingers[a])+String(":\t")+String(force));
-//         }
-//         delay(100);
-//     }
-//     for(unsigned int a = 0; a < numOfFingers; a++){
-//         clenchForce[a] = clenchForce[a]/samples;
-//         Serial.println(clenchForce[a]);
-//     }
-
-// }
-
 void calcForceRange(){
+    
+    int minimumRange = 50; // Tuner variable
     for (int i = 0; i < numOfFingers; i++){
         forceRange[i] = clenchForce[i] - restForce[i];
         if(forceRange[i] < minimumRange){
@@ -154,6 +107,7 @@ void calcForceRange(){
         }
     }
 }
+
 
 bool confirmation(bool calibrated){
     label1:

@@ -10,6 +10,27 @@
 
 int robotForce = 0;
 
+// Only receives one force value. This should be updated to have unique values for each finger. 
+void force_message_reciever(){
+    //Serial.println("Listening to force messages...");
+    
+    if(Serial.available()){
+        char force_message[3];
+        int i = 0;
+        for(; i < 3; i++){
+            force_message[i] = Serial.read();
+        }
+        // force_message[i] = '\n'; //not needed. Shrink force_message array size?
+        robotForce = atoi(force_message);
+        // Clear the UART buffer
+        while(Serial.available()){
+            Serial.read();
+        }
+    }
+    // Serial.println(robotForce);
+}
+
+// deprecated. Not sure how well this works. 
 int force_message_reciever_full_fingers(){
     //Serial.println("Listening to force messages...");
     char force_message[10];
@@ -47,52 +68,3 @@ int force_message_reciever_full_fingers(){
     //Serial.println(robotForce);
     return(robotForce);
 }
-
-void force_message_reciever_two(){
-    //Serial.println("Listening to force messages...");
-    
-    if(Serial.available()){
-        char force_message[3];
-        int i = 0;
-        for(; i < 3; i++){
-            force_message[i] = Serial.read();
-        }
-        for(; i < 3; i++){
-            force_message[i] = Serial.read();
-        }
-        force_message[i] = '\n';
-        // Serial.print("force text message ");
-        // Serial.println(force_message);
-        robotForce = atoi(force_message);
-        // Clear the UART buffer
-        while(Serial.available()){
-            Serial.read();
-        }
-    }
-
-    // Serial.println(robotForce);
-}
-
-// int scaleFactor(void){
-// //This magic number works well to scale the 16 bit force value coming from the robot to the 10 bit motor driver parameter
-//     int scale = 6; 
-//     return (force_message_reciever() / scale);
-// }
-
-//-------Deprecated Use force_message_reciever();------------------------------
-
-// void receive_command(){
-//   char force[10];
-//   int i = 0;
-//   while (!Serial2.available());
-//   while (Serial2.available()>0){
-//     char string = Serial2.read();
-//     //Serial.print(string);
-//     force[i] = string;
-//     i++;
-//   }
-//   sPos5 = atoi(force);
-//   Serial.println(sPos5);
-//   //delay(200);
-//   driveServos();
-// }

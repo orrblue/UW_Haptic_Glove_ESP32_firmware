@@ -54,3 +54,5 @@ static float update_moving_average_value(MovingAverage* avg, int val) {
 //     }
 //   }
 // }
+
+#endif

@@ -15,11 +15,11 @@
 
 #define LOGOLED 23
 
-#define JAMES 1
+#define NEWUSER 1
 #define ADAM 0
-#if ((ADAM + JAMES) == 1)
+#if ((ADAM + NEWUSER) == 1)
 
-#if JAMES == 1
+#if NEWUSER == 1
 #define PinkyEnc 4
 #define RingEnc 26
 #define MiddleEnc 27
