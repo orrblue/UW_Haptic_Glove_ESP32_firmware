@@ -113,9 +113,9 @@ void manualCalibration(){
   //  b. printFingerPosition() function makes sure the encoder in the motor works too. These numbers 
   // should be changing when the motor moves===
 
-  testMotors(2); // function argument = ms delay. 2ms delay time sets a good speed of ramp up
-  printFingerPositions();
-  delay(100);
+  // testMotors(2); // function argument = ms delay. 2ms delay time sets a good speed of ramp up
+  // printFingerPositions();
+  // delay(100);
   
   // ===END STEP ONE. Put these lines back in comments===
   
@@ -135,8 +135,8 @@ void manualCalibration(){
   // discontinuity between highest and lowest value. Attach the physical hardware fingers to the glove and 
   // verify that you don't hit zero or 4096
 
-  // printFingerPositions(); //prints out the location of each finger. 
-  // delay(100);
+  printFingerPositions(); //prints out the location of each finger. 
+  delay(100);
 
   // ===END STEP THREE. Leave this function running.
 

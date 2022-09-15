@@ -77,7 +77,7 @@ void driveMotors(){
 }
 
 void testMotors(int delay_time){
-  int max = 1000;
+  int max = MAX_DUTY_CYCLE;
   for(int i = -max; i < max; i++){
     for(int j = 0; j < numOfFingers; j++){
       driveSpeed[j] = i;  

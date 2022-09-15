@@ -7,19 +7,54 @@
 #ifndef PIN_CONFIG_H
 #define PIN_CONFIG_H
 
-#define vibrator 33
-#define vibrator2 25
+#define vibrator -1
+#define vibrator2 -1
 
 //#define RXp2 16
 //#define TXp2 17
 
-#define LOGOLED 23
-
-#define NEWUSER 1
+#define NEWUSER 0
 #define ADAM 0
-#if ((ADAM + NEWUSER) == 1)
+#define JAMES 1
+#if ((ADAM + NEWUSER + JAMES) == 1)
 
 #if NEWUSER == 1
+
+#define PinkyEnc 13
+#define RingEnc 14
+#define MiddleEnc 26
+#define IndexEnc 27
+#define ThumbEnc 4
+
+#define LOGOLED -1
+
+#define PWM1_Ch    0
+#define PWM1_Res   8
+#define PWM1_Freq  20000
+#define INA 2
+#define INB 15
+
+#define FF1 32
+#define FF2 35
+#define FF3 39
+#define FF4 34
+#define FF5 36
+
+//Change pin order to change directions the motor spins
+
+#define pinkyMotor1 12
+#define pinkyMotor2 33
+#define ringMotor1 23
+#define ringMotor2 25
+#define middleMotor1 21
+#define middleMotor2 22
+#define indexMotor1 19
+#define indexMotor2 18
+#define thumbMotor1 17
+#define thumbMotor2 16
+#endif
+
+#if JAMES == 1
 #define PinkyEnc 4
 #define RingEnc 26
 #define MiddleEnc 27
