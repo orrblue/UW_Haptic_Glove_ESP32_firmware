@@ -10,13 +10,12 @@
 #define vibrator -1
 #define vibrator2 -1
 
-//#define RXp2 16
-//#define TXp2 17
+// Enter a 1 next to the user profile you wish to use and a zero next to the others
 
-#define NEWUSER 0
+#define NEWUSER 1
 #define ADAM 0
-#define JAMES 1
-#if ((ADAM + NEWUSER + JAMES) == 1)
+#define JAMES 0
+#if ((ADAM + NEWUSER + JAMES) == 1) // Only one user profile can be active.
 
 #if NEWUSER == 1
 

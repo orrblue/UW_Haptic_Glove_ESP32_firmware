@@ -32,11 +32,12 @@ const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
 
 
 void setupMotors(void){
-
+  Serial.println("Begin motor setup");
   for(int i = 0; i < (numOfFingers * 2); i++){
     ledcSetup(PWMChannel[i], PWMFreq, PWMResolution);
     ledcAttachPin(motorPins[i], PWMChannel[i]);
   }
+  Serial.println("Finished motor setup");
 }
 
 void printFingerPositions(){
