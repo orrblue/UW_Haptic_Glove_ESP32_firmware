@@ -69,7 +69,7 @@ void driveMotors(){
       motorSpeed[i] = MAX_DUTY_CYCLE;
     if(motorSpeed[i] < MIN_DUTY_CYCLE)
       motorSpeed[i] = 0;
-    Serial.println(motorSpeed[i]);
+    //Serial.println(motorSpeed[i]);
     if(direction){ // drive forward
       ledcWrite(PWMChannel[(2*i)], motorSpeed[i]);
       ledcWrite(PWMChannel[(2*i + 1)], 0);
