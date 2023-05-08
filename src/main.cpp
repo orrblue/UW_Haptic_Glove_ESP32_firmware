@@ -411,11 +411,21 @@ void interactiveCalibration(){
       enter = 0;
       Serial.println("Recompile code with values from step 2,3,4 in calibration profile");
       Serial.println("Press Enter if code has been recompiled");
+      while(!enter){
+        while(!Serial.available()){} // wait for user to press a button
+        response = Serial.read();
+        // enter is 13 decimal
+        if(response == 13){
+          step = 5;
+          enter = 1;
+        }
+      }
       Serial.println("Step 5: Move your fingers and the glove should follow your movements");
       Serial.println("Press Enter to finish after testing movements");
+      enter = 0;
       while(!enter){
         while(!Serial.available()){
-          //followFingersV2();
+          followFingersV2();
         } // wait for user to press a button
         response = Serial.read();
         // enter is 13 decimal
