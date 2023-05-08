@@ -233,7 +233,7 @@ void interactiveCalibration(){
         response = Serial.read();
         // enter is 13 decimal
         if(response == 13){
-          //step = 2;
+          step = 2;
           enter = 1;
         }
       }
@@ -247,31 +247,35 @@ void interactiveCalibration(){
       Serial.println("Starting Step 2...Push on the motors and make sure the numbers being printed are changing");
       Serial.println("Press Enter when complete");
       enter = 0;
-      if (step == 2) {
-        delay(1000);
-        while(!enter){
-          while(!Serial.available()){
-            for(int i = 0; i < 5; i++){
-              return_force = readForce();
-              delay(100);
-            }
-          } // wait for user to press a button
-          response = Serial.read();
-          // enter is 13 decimal
-          if(response == 13){
-            step = 2;
-            enter = 1;
+      delay(1000);
+      while(!enter){
+        while(!Serial.available()){
+          for(int i = 0; i < 5; i++){
+            return_force = readForce();
+            delay(100);
           }
+        } // wait for user to press a button
+        response = Serial.read();
+        // enter is 13 decimal
+        if(response == 13){
+          //step = 2;
+          enter = 1;
         }
       }
-
+      enter = 0;
       Serial.println("Stop pushing on the motors and let them sit naturally");
-      delay(5000);
-      return_force = readForce();
-      for(int i = 0; i < 5; i++){
-        return_force = readForce();
-        delay(100);
+      Serial.println("Press Enter when complete");
+      // busy wait until the user presses Enter
+      while(!enter){
+        while(!Serial.available()){}
+        response = Serial.read();
+        // enter is 13 decimal
+        if(response == 13){
+          step = 3;
+          enter = 1;
+        }
       }
+      return_force = readForce(); //get the rest force once the user is ready
       Serial.println("Enter the following numbers under restForce into your profile (ie. index 0 = below )");
       Serial.println(return_force[0]);
       Serial.println(return_force[1]);
@@ -348,11 +352,6 @@ void interactiveCalibration(){
     
       Serial.println("Enter the following numbers under fingerPosMin into your profile (ie. index 0 = below )");
       printFingerPositions();
-      // Serial.println(finger_location_val[0]);
-      // Serial.println(finger_location_val[1]);
-      // Serial.println(finger_location_val[2]);
-      // Serial.println(finger_location_val[3]);
-      // Serial.println(finger_location_val[4]);
       enter = 0;
       Serial.println("Press Enter to continue");
       while(!enter){
@@ -376,14 +375,8 @@ void interactiveCalibration(){
           enter = 1;
         }
       }
-      //finger_location_val = readFingerPositions(); //reads the location of each finger. 
       Serial.println("Enter the following numbers under finerPosMax into your profile (ie. index 0 = below )");
       printFingerPositions();
-      // Serial.println(finger_location_val[0]);
-      // Serial.println(finger_location_val[1]);
-      // Serial.println(finger_location_val[2]);
-      // Serial.println(finger_location_val[3]);
-      // Serial.println(finger_location_val[4]);
 
       // ===STEP FOUR=== 
       //  a. With the same function running. Put on the glove, and curl each finger into your palm.
@@ -450,15 +443,17 @@ void setup() {
 void loop() {
   /* --------------------------- manual calibration --------------------------- */
   #if CALIBRATION == 1
-  //followFingersV2();
-  //interactiveCalibration(); //
-  // receive_ros_message(); //listens for ros message tested
+  interactiveCalibration(); // new interactive calibration technique
+  #endif
+
+  #if CALIBRATION == 2
+  manualCalibration(); // original method of calibration
   #endif
   /* ------------------------- end manual calibration ------------------------- */
 
   /* ------------------- Connect to VR or a robot over UART ------------------- */
   #if CALIBRATION == 0
-  interactOverUART(); // Calls James's simulation interface
+  //receive_ros_message(); //listens for ros message -> used during testing on 5/8 
   #endif
   /* ------------------------- end VR or robot control ------------------------ */
 

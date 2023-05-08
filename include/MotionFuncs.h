@@ -29,7 +29,7 @@ const int PWMFreq = 10000; /* 10 KHz */
 const int PWMChannel[] = {0,1,2,3,4,5,6,7,8,9};
 const int PWMResolution = 10;
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
-const int MIN_DUTY_CYCLE = 360;
+const int MIN_DUTY_CYCLE = 360; //minimum duty cycle added to decrease the frequency of the high pitch noise
 
 void setupMotors(void){
   Serial.println("Begin motor setup");
@@ -141,17 +141,28 @@ void followFingersV2(){ // proportional force control only. Could add full PID
   }
   driveMotors();
 }
+/* Parameter:
+      forceValue : 5 index array containing the force to apply on each finger
+
+  applyTorque() takes the input array and computes the adc value that would 
+                apply about the same force on the user's hand
+
+  force is in Newtons
+
+  Range of values is 0 - 20 Newtons 
+*/
 void applyTorque(int* forceValue){ 
-  // forceValue can range 0 - ~10
+  // forceValue can range 0 - ~20
   //forceValue = array of 5 for all the torques to apply on each finger
   int* force_return;
   int drive_motor[5] = {0,0,0,0,0};
   force_return = readForce();
+  /*
   int fsrVoltage = 0;
   int fsrResistance = 0;
   int fsrConductance = 0;
-  int fsrForce = 0;
-  int adc_value[5] = {0,0,0,0,0};
+  int fsrForce = 0;*/
+  int adc_value[5] = {0,0,0,0,0}; //called adc_value because the original code based used the read value from adc to cause the motors to move
   int finger_force = 0;
   bool positiveForce = true;
   for(int fingerIndex = 0; fingerIndex < numOfFingers; fingerIndex++){
@@ -161,20 +172,23 @@ void applyTorque(int* forceValue){
     }
     else{
       positiveForce = false;
+      //get absolue value
+      finger_force = finger_force * -1;
     }    
-    fsrConductance = finger_force * 30 + 1000;
+    /*fsrConductance = finger_force * 30 + 1000;
     fsrResistance = 1000000/ fsrConductance;
-    fsrVoltage = (3300*10000)/(fsrResistance + 10000);
+    fsrVoltage = (3300*10000)/(fsrResistance + 10000);*/
     if(positiveForce){ //forward force
       if(finger_force == 0){
         adc_value[fingerIndex] = 0;
       }
       else{
-        adc_value[fingerIndex] = map(fsrVoltage,3000,3100,300,600) * -1; //since constant is negative
+        //adc_value[fingerIndex] = map(fsrVoltage,3000,3100,300,600) * -1; //since constant is negative
+        adc_value[fingerIndex] = map(finger_force,0,20,300,600) * -1; //0 : 20 = input force range -- most likely not an exact amount of force, conductance code might be closer to real newton force 
       }
     }
     else //negative force -> backwards
-      adc_value[fingerIndex] = map(fsrVoltage,3000,3100,300,600);
+      adc_value[fingerIndex] = map(finger_force,0,20,300,600);
   
     driveSpeed[fingerIndex] =  -Kp * adc_value[fingerIndex];
   }

@@ -11,7 +11,6 @@
 #define vibrator2 -1
 
 // Enter a 1 next to the user profile you wish to use and a zero next to the others
-#define NICOLE 0
 #define NITZAN 1
 #define NEWUSER 0
 #define ADAM 0

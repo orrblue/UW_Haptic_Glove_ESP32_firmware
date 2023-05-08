@@ -22,8 +22,8 @@ void printForce(void){
 int* readForce(void){
   for(int i = 0; i < 5; i++){
     force[i] = analogRead(FFPins[i]);
-    //Serial.print(" force is\t\t");
-    //Serial.println(analogRead(FFPins[i]));
+    Serial.print(" force is\t\t");
+    Serial.println(analogRead(FFPins[i]));
   }
   return force; 
 }
