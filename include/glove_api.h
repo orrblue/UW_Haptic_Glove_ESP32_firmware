@@ -121,6 +121,7 @@ void receive_ros_message(){
     received_force = force_message_parser_fingers(ros_message);
     //force_message_parser_fingers(ros_message);
     applyTorque(received_force);
+    Serial.println(received_force[4]);
     /*for(int i = 0; i < 5; i++)
       Serial.println(received_force[i]);
 
