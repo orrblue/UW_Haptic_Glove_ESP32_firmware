@@ -19,6 +19,7 @@ void force_message_reciever(){
         int i = 0;
         for(; i < 3; i++){
             force_message[i] = Serial.read();
+            
         }
         // force_message[i] = '\n'; //not needed. Shrink force_message array size?
         robotForce = atoi(force_message);
@@ -29,6 +30,8 @@ void force_message_reciever(){
     }
     // Serial.println(robotForce);
 }
+
+
 
 // deprecated. Not sure how well this works. 
 int force_message_reciever_full_fingers(){

@@ -11,6 +11,7 @@ void calibrateForceZero(void){
 }
 
 void printForce(void){
+
   for(int i = 0; i < numOfFingers; i++){
     Serial.print(Fingers[i]);
     Serial.print(" force is\t\t");
@@ -18,10 +19,13 @@ void printForce(void){
   }
 }
 
-void readForce(void){
+int* readForce(void){
   for(int i = 0; i < 5; i++){
     force[i] = analogRead(FFPins[i]);
+    //Serial.print(" force is\t\t");
+    //Serial.println(analogRead(FFPins[i]));
   }
+  return force; 
 }
 
 // void timeNewForce(){
