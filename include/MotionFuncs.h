@@ -152,15 +152,17 @@ void applyTorque(int* forceValue){
   int fsrConductance = 0;
   int fsrForce = 0;
   int adc_value[5] = {0,0,0,0,0};
+  int finger_force = 0;
   bool positiveForce = true;
   for(int fingerIndex = 0; fingerIndex < numOfFingers; fingerIndex++){
-    if(forceValue >= 0){
+    finger_force = forceValue[fingerIndex];
+    if(finger_force >= 0){
       positiveForce = true;
     }
     else{
       positiveForce = false;
     }    
-    fsrConductance = forceValue[fingerIndex] * 30 + 1000;
+    fsrConductance = finger_force * 30 + 1000;
     fsrResistance = 1000000/ fsrConductance;
     fsrVoltage = (3300*10000)/(fsrResistance + 10000);
     if(positiveForce) //forward force

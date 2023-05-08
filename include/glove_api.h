@@ -119,11 +119,13 @@ void receive_ros_message(){
     // force_message_parser_fingers returns a 5 index array
     received_force = force_message_parser_fingers(ros_message);
     //force_message_parser_fingers(ros_message);
-    for(int i = 0; i < 5; i++)
+    applyTorque(received_force);
+    /*for(int i = 0; i < 5; i++)
       Serial.println(received_force[i]);
+
       new_finger_forces[i] = received_force[i]; 
       // Clear the UART buffer
-    while(Serial.available()){
+    */while(Serial.available()){
       Serial.read();
     }
 }
