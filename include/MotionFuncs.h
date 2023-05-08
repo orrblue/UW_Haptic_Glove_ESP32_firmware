@@ -166,7 +166,12 @@ void applyTorque(int* forceValue){
     fsrResistance = 1000000/ fsrConductance;
     fsrVoltage = (3300*10000)/(fsrResistance + 10000);
     if(positiveForce) //forward force
-      adc_value[fingerIndex] = map(fsrVoltage,3000,3100,300,600) * -1; //since constant is negative
+      if(finger_force == 0){
+        adc_value[fingerIndex] = 0;
+      }
+      else{
+        adc_value[fingerIndex] = map(fsrVoltage,3000,3100,300,600) * -1; //since constant is negative
+      }
     else //negative force -> backwards
       adc_value[fingerIndex] = map(fsrVoltage,3000,3100,300,600);
   
