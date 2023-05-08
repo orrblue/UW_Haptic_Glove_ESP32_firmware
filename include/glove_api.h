@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include <ESP32Servo.h>
+#include "ForceFuncs.h"
 //#include "reciever.h"
 
 int new_finger_forces[5];
