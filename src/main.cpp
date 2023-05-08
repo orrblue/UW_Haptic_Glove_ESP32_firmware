@@ -415,7 +415,7 @@ void interactiveCalibration(){
       Serial.println("Press Enter to finish after testing movements");
       while(!enter){
         while(!Serial.available()){
-          followFingersV2();
+          //followFingersV2();
         } // wait for user to press a button
         response = Serial.read();
         // enter is 13 decimal
